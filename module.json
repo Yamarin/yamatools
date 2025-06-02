@@ -1,0 +1,43 @@
+{
+  "id": "yamatools",
+  "title": "Yama Tools",
+  "description": "A collection of useful tools for Pathfinder 2e",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12",
+    "maximum": "12"
+  },
+  "relationships": {
+    "systems": [{
+      "id": "pf2e",
+      "type": "system",
+      "compatibility": {
+        "minimum": "5.0.0",
+        "verified": "5.7.0"
+      }
+    }]
+  },
+  "authors": [
+    {
+      "name": "Yamarin"
+    }
+  ],
+  "esmodules": [
+    "scripts/module.js"
+  ],
+  "styles": [
+    "styles/yamatools.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "url": "https://github.com/yourusername/yamatools",
+  "manifest": "https://github.com/yourusername/yamatools/releases/latest/download/module.json",
+  "download": "https://github.com/yourusername/yamatools/releases/latest/download/module.zip",
+  "license": "MIT"
+} 
