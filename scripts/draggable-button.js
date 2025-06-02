@@ -167,6 +167,8 @@ window.DraggableButton = class DraggableButton {
         this.menuContainer.style.display = 'flex';
         this.menuContainer.style.flexDirection = 'column-reverse';
         this.menuContainer.style.gap = '4px';
+        this.menuContainer.style.minWidth = `${rect.width}px`;
+        this.menuContainer.style.alignItems = 'flex-start';
     }
 
     closeMenu() {
@@ -181,7 +183,7 @@ window.DraggableButton = class DraggableButton {
             const el = document.createElement('div');
             el.className = 'yamatools-draggable-button';
             el.style.position = 'relative';
-            el.style.margin = '0 auto';
+            el.style.margin = '0';
             el.innerHTML = btn.icon + (btn.label ? `<span style="margin-left:6px;font-size:12px;vertical-align:middle;">${btn.label}</span>` : '');
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
