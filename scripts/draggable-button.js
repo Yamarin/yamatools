@@ -16,6 +16,7 @@ window.DraggableButton = class DraggableButton {
         this.justClosedMenu = false;
         this.wasDragging = false;
         this.menuJustClosedByDocument = false;
+        this.menuClosedByButton = false;
     }
 
     async loadPosition() {
@@ -74,7 +75,7 @@ window.DraggableButton = class DraggableButton {
         document.addEventListener('mousemove', this.onMouseMove.bind(this));
         window.addEventListener('mouseup', this.onMouseUp.bind(this));
         this.button.addEventListener('contextmenu', this.onContextMenu.bind(this));
-        this.button.addEventListener('click', this.onLeftClick.bind(this));
+        this.button.addEventListener('mousedown', this.onButtonMouseDown.bind(this));
         document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this));
 
         // Add button to the document
@@ -112,6 +113,10 @@ window.DraggableButton = class DraggableButton {
     onMouseDown(event) {
         if (event.button !== 0) return; // Only handle left mouse button
         if (this.locked) return; // Prevent dragging if locked
+        // If menu is open and button is clicked, set flag to prevent document mousedown from closing menu
+        if (this.menuContainer && this.menuContainer.style.display !== 'none') {
+            this.menuClosedByButton = true;
+        }
         this.isDragging = true;
         this.wasDragging = false;
         const rect = this.button.getBoundingClientRect();
@@ -142,19 +147,16 @@ window.DraggableButton = class DraggableButton {
         }
     }
 
-    onLeftClick(event) {
+    onButtonMouseDown(event) {
         if (event.button !== 0) return; // Only LMB
         if (!this.locked) return; // Only allow menu when locked
-        if (this.menuJustClosedByDocument) {
-            this.menuJustClosedByDocument = false;
-            return;
-        }
+        event.stopPropagation(); // Prevent document mousedown from firing
         if (this.menuContainer.style.display === 'none') {
             this.openMenu();
-            console.log(`${MODULE_ID} | Yamatool button clicked while locked (menu shown)`);
+            console.log(`${MODULE_ID} | Yamatool button mousedown while locked (menu shown)`);
         } else {
             this.closeMenu();
-            console.log(`${MODULE_ID} | Yamatool button clicked while locked (menu hidden)`);
+            console.log(`${MODULE_ID} | Yamatool button mousedown while locked (menu hidden)`);
         }
     }
 
@@ -195,10 +197,15 @@ window.DraggableButton = class DraggableButton {
     }
 
     onDocumentMouseDown(event) {
+        // Do nothing if the click is on the yamatool button
+        if (event.target === this.button) {
+            console.log(`${MODULE_ID} | Document mousedown on yamatool button, ignoring menu close.`);
+            return;
+        }
         // Close menu if clicking outside
-        if (this.menuContainer.style.display !== 'none' && !this.menuContainer.contains(event.target) && event.target !== this.button) {
+        if (this.menuContainer.style.display !== 'none' && !this.menuContainer.contains(event.target)) {
             this.closeMenu();
-            this.menuJustClosedByDocument = true;
+            console.log(`${MODULE_ID} | Document mousedown outside, menu hidden.`);
         }
     }
 
