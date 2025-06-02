@@ -24,7 +24,8 @@
     }
   ],
   "esmodules": [
-    "scripts/module.js"
+    "scripts/module.js",
+    "scripts/draggable-button.js"
   ],
   "styles": [
     "styles/yamatools.css"
