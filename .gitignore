@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Foundry VTT specific
+*.lock 
