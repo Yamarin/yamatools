@@ -8,6 +8,14 @@ class YamaTools {
 
     static initialize() {
         console.log(`${MODULE_ID} | Initializing module`);
+        // Register a client setting for button position
+        game.settings.register(MODULE_ID, 'buttonPosition', {
+            name: 'Button Position',
+            scope: 'client',
+            config: false,
+            type: Object,
+            default: { x: 20, y: 20 }
+        });
         // Ensure draggable-button.js is loaded
         if (typeof DraggableButton === 'undefined') {
             console.error(`${MODULE_ID} | DraggableButton not found during initialization`);

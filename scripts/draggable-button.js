@@ -14,7 +14,25 @@ window.DraggableButton = class DraggableButton {
         };
     }
 
-    create() {
+    async loadPosition() {
+        // Load position from Foundry settings
+        if (typeof game !== 'undefined' && game.settings) {
+            const pos = await game.settings.get('yamatools', 'buttonPosition');
+            if (pos && typeof pos.x === 'number' && typeof pos.y === 'number') {
+                this.position = pos;
+            }
+        }
+    }
+
+    async savePosition() {
+        // Save position to Foundry settings
+        if (typeof game !== 'undefined' && game.settings) {
+            await game.settings.set('yamatools', 'buttonPosition', this.position);
+        }
+    }
+
+    async create() {
+        await this.loadPosition();
         // Create button element
         this.button = document.createElement('div');
         this.button.className = 'yamatools-draggable-button';
@@ -59,10 +77,11 @@ window.DraggableButton = class DraggableButton {
         this.button.style.top = `${y}px`;
     }
 
-    onMouseUp() {
+    async onMouseUp() {
         if (!this.isDragging) return;
         
         this.isDragging = false;
+        await this.savePosition();
         console.log(`${MODULE_ID} | Button drag ended at position:`, this.position);
     }
 
