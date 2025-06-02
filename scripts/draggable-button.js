@@ -13,6 +13,9 @@ window.DraggableButton = class DraggableButton {
             y: 20
         };
         this.locked = false;
+        this.justClosedMenu = false;
+        this.wasDragging = false;
+        this.menuJustClosedByDocument = false;
     }
 
     async loadPosition() {
@@ -56,12 +59,23 @@ window.DraggableButton = class DraggableButton {
         this.renderLockIcon();
         this.button.style.left = `${this.position.x}px`;
         this.button.style.top = `${this.position.y}px`;
+        this.button.style.position = 'fixed';
+
+        // Create menu container
+        this.menuContainer = document.createElement('div');
+        this.menuContainer.className = 'yamatools-menu-container';
+        this.menuContainer.style.display = 'none';
+        this.menuContainer.style.position = 'fixed';
+        this.menuContainer.style.zIndex = 1001;
+        document.body.appendChild(this.menuContainer);
 
         // Add event listeners
         this.button.addEventListener('mousedown', this.onMouseDown.bind(this));
         document.addEventListener('mousemove', this.onMouseMove.bind(this));
-        document.addEventListener('mouseup', this.onMouseUp.bind(this));
+        window.addEventListener('mouseup', this.onMouseUp.bind(this));
         this.button.addEventListener('contextmenu', this.onContextMenu.bind(this));
+        this.button.addEventListener('click', this.onLeftClick.bind(this));
+        document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this));
 
         // Add button to the document
         document.body.appendChild(this.button);
@@ -99,21 +113,19 @@ window.DraggableButton = class DraggableButton {
         if (event.button !== 0) return; // Only handle left mouse button
         if (this.locked) return; // Prevent dragging if locked
         this.isDragging = true;
+        this.wasDragging = false;
         const rect = this.button.getBoundingClientRect();
         this.offsetX = event.clientX - rect.left;
         this.offsetY = event.clientY - rect.top;
-        
-        // Prevent text selection while dragging
         event.preventDefault();
         console.log(`${MODULE_ID} | Button drag started`);
     }
 
     onMouseMove(event) {
         if (!this.isDragging) return;
-
+        this.wasDragging = true;
         const x = event.clientX - this.offsetX;
         const y = event.clientY - this.offsetY;
-
         // Update position
         this.position.x = x;
         this.position.y = y;
@@ -123,10 +135,69 @@ window.DraggableButton = class DraggableButton {
 
     async onMouseUp() {
         if (!this.isDragging) return;
-        
         this.isDragging = false;
-        await this.savePosition();
-        console.log(`${MODULE_ID} | Button drag ended at position:`, this.position);
+        if (this.wasDragging) {
+            await this.savePosition();
+            console.log(`${MODULE_ID} | Button drag ended at position:`, this.position);
+        }
+    }
+
+    onLeftClick(event) {
+        if (event.button !== 0) return; // Only LMB
+        if (!this.locked) return; // Only allow menu when locked
+        if (this.menuJustClosedByDocument) {
+            this.menuJustClosedByDocument = false;
+            return;
+        }
+        if (this.menuContainer.style.display === 'none') {
+            this.openMenu();
+            console.log(`${MODULE_ID} | Yamatool button clicked while locked (menu shown)`);
+        } else {
+            this.closeMenu();
+            console.log(`${MODULE_ID} | Yamatool button clicked while locked (menu hidden)`);
+        }
+    }
+
+    openMenu() {
+        this.renderMenu();
+        // Position menu above the yamatool button
+        const rect = this.button.getBoundingClientRect();
+        this.menuContainer.style.left = `${rect.left}px`;
+        this.menuContainer.style.top = `${rect.top - (YamaTools.menuButtons.length * 40)}px`;
+        this.menuContainer.style.display = 'flex';
+        this.menuContainer.style.flexDirection = 'column-reverse';
+        this.menuContainer.style.gap = '4px';
+    }
+
+    closeMenu() {
+        this.menuContainer.style.display = 'none';
+    }
+
+    renderMenu() {
+        // Clear previous
+        this.menuContainer.innerHTML = '';
+        // Render each menu button
+        YamaTools.menuButtons.forEach((btn, idx) => {
+            const el = document.createElement('div');
+            el.className = 'yamatools-draggable-button';
+            el.style.position = 'relative';
+            el.style.margin = '0 auto';
+            el.innerHTML = btn.icon + (btn.label ? `<span style="margin-left:6px;font-size:12px;vertical-align:middle;">${btn.label}</span>` : '');
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.closeMenu();
+                btn.onClick?.();
+            });
+            this.menuContainer.appendChild(el);
+        });
+    }
+
+    onDocumentMouseDown(event) {
+        // Close menu if clicking outside
+        if (this.menuContainer.style.display !== 'none' && !this.menuContainer.contains(event.target) && event.target !== this.button) {
+            this.closeMenu();
+            this.menuJustClosedByDocument = true;
+        }
     }
 
     destroy() {

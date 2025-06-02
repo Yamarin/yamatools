@@ -5,6 +5,7 @@ const MODULE_ID = 'yamatools';
 class YamaTools {
     static MODULE_ID = MODULE_ID;
     static draggableButton = null;
+    static menuButtons = [];
 
     static initialize() {
         console.log(`${MODULE_ID} | Initializing module`);
@@ -54,10 +55,20 @@ class YamaTools {
             this.draggableButton = null;
         }
     }
+
+    // API for other modules to register menu buttons
+    static registerMenuButton({icon, label, onClick}) {
+        this.menuButtons.push({icon, label, onClick});
+        // If the draggableButton exists, re-render the menu if open
+        if (this.draggableButton && this.draggableButton.renderMenu) {
+            this.draggableButton.renderMenu();
+        }
+    }
 }
 
-// Make YamaTools globally available
+// Make YamaTools globally available and expose registerMenuButton
 window.YamaTools = YamaTools;
+window.YamaTools.registerMenuButton = YamaTools.registerMenuButton.bind(YamaTools);
 
 // Module initialization hook
 Hooks.once('init', () => {
