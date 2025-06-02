@@ -16,6 +16,14 @@ class YamaTools {
             type: Object,
             default: { x: 20, y: 20 }
         });
+        // Register a client setting for button lock state
+        game.settings.register(MODULE_ID, 'buttonLocked', {
+            name: 'Button Locked',
+            scope: 'client',
+            config: false,
+            type: Boolean,
+            default: false
+        });
         // Ensure draggable-button.js is loaded
         if (typeof DraggableButton === 'undefined') {
             console.error(`${MODULE_ID} | DraggableButton not found during initialization`);
