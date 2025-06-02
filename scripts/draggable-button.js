@@ -80,7 +80,7 @@ window.DraggableButton = class DraggableButton {
             lock.style.position = 'absolute';
             lock.style.right = '2px';
             lock.style.bottom = '2px';
-            lock.style.fontSize = '12px';
+            lock.style.fontSize = '6px';
             lock.style.color = '#e0dfd7';
             lock.style.pointerEvents = 'none';
             this.button.appendChild(lock);
