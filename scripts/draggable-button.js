@@ -19,6 +19,10 @@ window.DraggableButton = class DraggableButton {
         this.menuClosedByButton = false;
     }
 
+    isGameMaster() {
+        return game.user.isGM;
+    }
+
     async loadPosition() {
         // Load position from Foundry settings
         if (typeof game !== 'undefined' && game.settings) {
@@ -49,6 +53,12 @@ window.DraggableButton = class DraggableButton {
     }
 
     async create() {
+        // Only create the button for GMs
+        if (!this.isGameMaster()) {
+            console.log(`${MODULE_ID} | Not creating button for non-GM user`);
+            return;
+        }
+
         await this.loadPosition();
         await this.loadLockState();
         // Create button element
